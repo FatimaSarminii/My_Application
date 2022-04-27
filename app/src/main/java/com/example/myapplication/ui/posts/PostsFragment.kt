@@ -13,6 +13,7 @@ import com.example.myapplication.data.models.Status
 import com.example.myapplication.databinding.FragmentPostsBinding
 import com.example.myapplication.helper.ktx.*
 import com.example.myapplication.ui.details.PostDetailsActivity
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
 
 class PostsFragment : Fragment(R.layout.fragment_posts) {
 
@@ -34,12 +35,10 @@ class PostsFragment : Fragment(R.layout.fragment_posts) {
     private fun setupRecyclerView(posts: List<Posts>) = with(binding) {
 
         postsList.apply {
-                adapter = PostsAdapter(onItemClick = { posts ->
-                    onPostClick(posts) }, posts)
-
-                layoutManager = LinearLayoutManager(requireContext())
-                setHasFixedSize(true)
-            }
+            adapter = PostsAdapter(onItemClick = { posts ->
+                onPostClick(posts) }, posts)
+            layoutManager = LinearLayoutManager(requireContext())
+        }
     }
 
     private fun loadPosts(){

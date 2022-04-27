@@ -3,7 +3,12 @@ package com.example.myapplication.ui.fav
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.lifecycle.Observer
@@ -18,8 +23,11 @@ import com.example.myapplication.helper.ktx.showToast
 import com.example.myapplication.helper.ktx.visible
 import com.example.myapplication.ui.details.PostDetailsActivity
 import com.example.myapplication.ui.posts.PostsAdapter
+import com.example.myapplication.ui.posts.PostsFragmentDirections
+import jp.wasabeef.recyclerview.animators.LandingAnimator
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
 
-class FavFragment : Fragment(R.layout.fragment_fav)  {
+class FavFragment : Fragment(R.layout.fragment_fav) , SearchView.OnQueryTextListener {
 
     private lateinit var binding: FragmentFavBinding
 
@@ -32,6 +40,7 @@ class FavFragment : Fragment(R.layout.fragment_fav)  {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFavBinding.bind(view)
+        setHasOptionsMenu(true)
     }
 
     override fun onResume() {
@@ -51,8 +60,9 @@ class FavFragment : Fragment(R.layout.fragment_fav)  {
             }, posts)
             adapter = postAdapter
             layoutManager = LinearLayoutManager(requireContext())
-            setHasFixedSize(true)
-
+            itemAnimator = SlideInUpAnimator().apply {
+                addDuration = 300
+            }
             swipeToDelete(favList)
         }
 
@@ -69,8 +79,9 @@ class FavFragment : Fragment(R.layout.fragment_fav)  {
     private fun swipeToDelete(recyclerView: RecyclerView){
         val swipeToDeleteCallback = object : SwipeToDelete(){
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val itemToDelete = postAdapter.postsList[viewHolder.adapterPosition]
+                val itemToDelete = postAdapter.oldPostsList[viewHolder.adapterPosition]
                 viewModel.removeFromFavorite(itemToDelete.id)
+                postAdapter.notifyItemRemoved(viewHolder.adapterPosition)
                 requireActivity().showToast("The post has been removed successfully", 1)
             }
         }
@@ -90,8 +101,6 @@ class FavFragment : Fragment(R.layout.fragment_fav)  {
         }
     }
 
-
-
     private fun onPostClick(post: Posts) {
         val intent = Intent(activity, PostDetailsActivity::class.java)
         intent.putExtra("KEY_ID", post.id)
@@ -101,6 +110,82 @@ class FavFragment : Fragment(R.layout.fragment_fav)  {
         intent.putExtra("KEY_USER_ID", post.userId)
         startActivity(intent)
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.post_fragment_menu, menu)
+
+        val search = menu.findItem(R.id.menu_search)
+        val searchView = search.actionView as? SearchView
+        searchView?.isSubmitButtonEnabled = true
+        searchView?.setOnQueryTextListener(this)
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_delete_all -> confirmPostRemoval()
+            R.id.menu_sort_a_to_z -> sortByASC()
+            R.id.menu_sort_z_to_a -> sortByDESC()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if(query != null){
+            searchThroughDatabase(query)
+        }
+        return true
+    }
+
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        if(query != null){
+            searchThroughDatabase(query)
+        }
+        return true
+    }
+
+
+    private fun searchThroughDatabase(query: String) {
+        val searchQuery = "%$query%"
+        viewModel.search(searchQuery).observe(this, Observer { list ->
+            list?.let {
+                setupRecyclerView(it)
+                postAdapter.setData(it)
+            }
+        })
+    }
+
+
+
+    private fun confirmPostRemoval(){
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setPositiveButton("Yes"){ _,_ ->
+            viewModel.removeAllFromFavorite()
+            requireActivity().showToast("All posts have been removed successfully", 1)
+        }
+        builder.setNegativeButton("No"){ _,_ ->}
+        builder.setTitle("Remove Posts?")
+        builder.setMessage("Are you sure you want to remove all posts from favorite list?")
+        builder.create().show()
+
+    }
+
+    private fun sortByASC(){
+        viewModel.sortByASC().observe(this, Observer{
+            setupRecyclerView(it)
+            postAdapter.setData(it)
+        })
+    }
+
+
+    private fun sortByDESC(){
+        viewModel.sortByDESC().observe(this, Observer{
+            setupRecyclerView(it)
+            postAdapter.setData(it)
+        })
     }
 
 

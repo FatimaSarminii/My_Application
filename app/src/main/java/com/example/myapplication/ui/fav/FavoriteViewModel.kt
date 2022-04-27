@@ -33,7 +33,24 @@ class FavoriteViewModel( private val appRepository : AppRepository) : ViewModel(
         }
     }
 
+    fun removeAllFromFavorite(){
+        viewModelScope.launch(Dispatchers.IO){
+            appRepository.deleteAllFavPosts()
+        }
+    }
 
+    fun search(searchQuery: String): LiveData<List<Posts>> {
+           return appRepository.search(searchQuery)
+
+    }
+
+    fun sortByASC(): LiveData<List<Posts>> {
+        return appRepository.sortByASC()
+    }
+
+    fun sortByDESC(): LiveData<List<Posts>> {
+        return appRepository.sortByDESC()
+    }
 
 }
 

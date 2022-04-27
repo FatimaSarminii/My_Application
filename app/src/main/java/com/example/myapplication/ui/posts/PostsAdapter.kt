@@ -2,6 +2,7 @@ package com.example.myapplication.ui.posts
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.data.models.Posts
 import com.example.myapplication.data.models.Resource
@@ -12,7 +13,7 @@ class PostsAdapter(
     private var posts: List<Posts>
 ) : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
 
-    var postsList = emptyList<Posts>()
+    var oldPostsList = emptyList<Posts>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = PostsModelBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -56,8 +57,13 @@ class PostsAdapter(
         return posts.size
     }
 
-    fun setData(posts: List<Posts>){
-        this.postsList = posts
+    fun setData(newPostsList: List<Posts>){
+        val diffUtil = PostDiffUtil(oldPostsList, newPostsList)
+        val diffResult = DiffUtil.calculateDiff(diffUtil)
+        this.oldPostsList = newPostsList
+        diffResult.dispatchUpdatesTo(this)
     }
+
+
 
 }

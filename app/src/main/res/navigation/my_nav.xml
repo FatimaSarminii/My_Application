@@ -11,28 +11,25 @@
         android:label="fragment_posts"
         tools:layout="@layout/fragment_posts" >
         <action
-            android:id="@+id/action_postsFragment_to_detailsFragment"
-            app:destination="@id/detailsFragment" />
+            android:id="@+id/action_posts_navigation_to_favorite_navigation2"
+            app:destination="@id/favorite_navigation"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
+
     <fragment
         android:id="@+id/favorite_navigation"
         android:name="com.example.myapplication.ui.fav.FavFragment"
         android:label="fragment_fav"
         tools:layout="@layout/fragment_fav" >
         <action
-            android:id="@+id/action_favFragment_to_detailsFragment2"
-            app:destination="@id/detailsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/detailsFragment"
-        android:name="com.example.myapplication.ui.details.DetailsFragment"
-        android:label="fragment_details"
-        tools:layout="@layout/fragment_details" >
-        <action
-            android:id="@+id/action_detailsFragment_to_postsFragment"
-            app:destination="@id/posts_navigation" />
-        <action
-            android:id="@+id/action_detailsFragment_to_favFragment"
-            app:destination="@id/favorite_navigation" />
+            android:id="@+id/action_favorite_navigation_to_posts_navigation2"
+            app:destination="@id/posts_navigation"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right"
+            app:popEnterAnim="@anim/from_right"
+            app:popExitAnim="@anim/to_left" />
     </fragment>
 </navigation>

@@ -19,5 +19,15 @@ interface AppDao {
     @Query("DELETE FROM posts_table WHERE id = :id")
     fun deletePost(id: String)
 
+    @Query("DELETE FROM posts_table")
+    fun deleteAll()
 
+    @Query("SELECT * FROM posts_table WHERE userName LIKE :searchQuery")
+    fun search(searchQuery: String): LiveData<List<Posts>>
+
+    @Query("SELECT * FROM posts_table ORDER BY userName ASC")
+    fun sortByASC(): LiveData<List<Posts>>
+
+    @Query("SELECT * FROM posts_table ORDER BY userName DESC")
+    fun sortByDESC(): LiveData<List<Posts>>
 }

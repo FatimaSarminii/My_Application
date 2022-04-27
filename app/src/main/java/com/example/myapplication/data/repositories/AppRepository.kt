@@ -21,6 +21,22 @@ class AppRepository(): BaseRepository() {
         dao.deletePost(id)
     }
 
+    fun deleteAllFavPosts(){
+        dao.deleteAll()
+    }
+
+    fun search(searchQuery: String): LiveData<List<Posts>> {
+       return dao.search(searchQuery)
+    }
+
+
+    fun sortByASC(): LiveData<List<Posts>> {
+        return dao.sortByASC()
+    }
+
+    fun sortByDESC(): LiveData<List<Posts>> {
+        return dao.sortByDESC()
+    }
 
 
 }
